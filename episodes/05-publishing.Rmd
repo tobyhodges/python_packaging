@@ -4,6 +4,11 @@ teaching: 30
 exercises: 0
 ---
 
+TODO: replace build and twine with hatch. local build with hatch. demo push to test-pypi.
+TODO: pip install from github
+TODO: vcs based versioning with git tags and hatch (like setuptools-vcs)
+TODO: Update github action to use hatch and push to test-pypi
+
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::: questions 
 
 - What services can we use to publish our software? 

@@ -4,6 +4,8 @@ teaching: 20
 exercises: 2
 ---
 
+TODO: Add an episode 0 with discussion on when to write a python package and what makes for a good tool
+
 :::::::::::::::::::::::::::::::::::::: questions 
 
 - What is a 'module' in Python? How does this differ from a 'script'?
@@ -518,6 +520,8 @@ the module is stored on our file system, which can make it difficult to reuse th
 functions in a separate project. A simple solution is to set the `PYTHONPATH`
 environment variable on our system. On Linux machines, this can be achieved using:
 
+TODO: Add an example here where we change dir and then try to import a module. This will fail without setting python path.
+
 ```bash
 $ export PYTHONPATH="${PYTHONPATH}:/path/to/my/module/directory"
 ```
@@ -625,6 +629,8 @@ for now.
 
 
 ## Extra: Better scripting with `argparse`
+
+TODO: split arg parsing off into a separate episode
 
 We showed earlier how to maintain script-like functionality in our modules. We'll update
 that code to include our updated plotting function, so we'll automatically save to

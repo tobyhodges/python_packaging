@@ -4,6 +4,14 @@ teaching: 20
 exercises: 0
 ---
 
+TODO: Migrate setuptools to hatch
+TODO: Remove refs to setup.py
+TODO: Remove venv, explictly use conda envs
+TODO: modify package structure to nest within src dir 
+TODO: update black to ruff
+TODO: pip install in editable mode
+TODO: New section: Write pytest tests 
+
 :::::::::::::::::::::::::::::::::::::: questions 
 
 - How can we manage our Python environment?

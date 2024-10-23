@@ -4,6 +4,8 @@ teaching: 30
 exercises: 0
 ---
 
+TODO: Decide what to do with this section. Suggest heavy cull. Keep only pyproject.toml and hatch. Mention hatch alternatives like setuptools and poetry.
+
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::: questions 
 
 - Why have the 'best practices' for building and installing Python 

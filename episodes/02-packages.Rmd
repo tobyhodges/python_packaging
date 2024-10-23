@@ -114,6 +114,8 @@ Recovered individuals do not gain immunity to the pathogen, and instead return t
 Susceptible population (this can apply to the common cold and some types of flu). These
 new modules should be added to the package directory:
 
+TODO: Scrub unimplemented models to reduce complexity
+
 <code>
 &#128193; epi\_models<br>
 |<br>
@@ -274,6 +276,9 @@ plain scripts.
 Python package, but if we wish, we can use them to control what is or isn't visible at
 package-level scope, or to perform any additional setup.
 
+
+TODO: This needs an interactive exercise. What happens without importing anything in __init__?
+
 Consider the `__init__.py` file in the `models` directory. Let's add the following
 lines:
 
@@ -369,6 +374,7 @@ Traceback (most recent call last):
 NameError: name 'SIS_model' is not defined
 ```
 
+TODO: remove discussion of private variables
 :::::::::::::::::::::: discussion
 
 ### 'Private' variables in Python
@@ -536,6 +542,8 @@ to read the 'extra' sections in this lesson and the previous one, as `argparse` 
 you to build much more sophisticated command line interfaces.
 
 ## Extra: Advanced `argparse` in `__main__.py`
+
+TODO: Remove advanced argparse?
 
 Let's return to `plot_SIR.py`, and apply the enhancements discussed in the 'extra'
 sections last lesson:
