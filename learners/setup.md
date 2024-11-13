@@ -115,7 +115,7 @@ Setup your test-pypi account:
 - Confirm your email address.
 - Set up 2-factor authentication.
 
-## Creat project repo
+## Create project repo
 
 Create a new repo in your github account called `learn-hatch` and clone it to your local machine.
 
