@@ -753,9 +753,11 @@ $ hatch publish --repo testpypi --user __token__ --auth <your_token_here>
 To avoid entering you token on the cmd line you can provide details as env variables
 
 ```bash
-export HATCH_INDEX_USERNAME=__token__ 
+export HATCH_INDEX_USER=__token__ 
 export HATCH_INDEX_AUTH=<your-token>
 ```
+
+For more authentication options see the [Hatch documentation](https://hatch.pypa.io/latest/how-to/publish/auth/).
 
 
 Note that there is a registration process for TestPyPI, and a separate one for PyPI.
