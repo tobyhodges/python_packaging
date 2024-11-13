@@ -8,6 +8,8 @@ TODO: replace build and twine with hatch. local build with hatch. demo push to t
 TODO: pip install from github
 TODO: vcs based versioning with git tags and hatch (like setuptools-vcs)
 TODO: Update github action to use hatch and push to test-pypi
+TODO: Change demo package name to <packageName>_<githubUserName>, check that this does not exist in test-pypi
+TODO: Create a test-pypi API token
 
 :::::::::::::::::::::::::::::::::::::::::::::::::::::::::: questions 
 
@@ -66,137 +68,7 @@ right-to-left. The meaning of each number is:
   behaviour in a significant way. Whenever we increment the major version, both the
   minor version and patch version should be reset to zero.
 
-:::::::::::::::::: challenge
 
-Our contains the following function which gives the nth value of the  Fibonacci
-sequence:
-
-```python
-def fibonacci(n):
-    if n in [0, 1]:
-        return n
-    else:
-        return fibonacci(n-1) + fibonacci(n-2)
-```
-
-A user points out that this function causes an infinite loop if provided with a negative
-number, so we change it to:
-
-```python
-def fibonacci(n):
-    if n < 0:
-        raise ValueError("n must be greater than or equal to 0")
-    elif n in [0, 1]:
-        return n
-    else:
-        return fibonacci(n-1) + fibonacci(n-2)
-```
-
-If our software was version 2.3.4, and after this change we make a new release, what
-should the new version number be?
-
-::::::::::::::::::::::::::::
-
-::::::::::::::::::: solution
-
-2.3.5. This change is backwards compatible, and doesn't add any new features. Instead,
-it simply fixes a bug.
-
-::::::::::::::::::::::::::::
-
-:::::::::::::::::: challenge
-
-Our algorithm isn't very efficient, so we convert it to an iterative algorithm:
-
-```python
-def fibonacci(n):
-    if n < 0:
-        raise ValueError("n must be greater than or equal to 0")
-    elif n in [0, 1]:
-        return n
-    else:
-        last_two = [0, 1]
-        while n > 1:
-            val = sum(last_two)
-            last_two[0] = last_two[1]
-            last_two[1] = val
-            n -= 1
-        return val
-```
-
-If the previous version was 2.4.7, what should the new version be?
-
-::::::::::::::::::::::::::::
-
-::::::::::::::::::: solution
-
-2.4.8. This change is backwards compatible, and doesn't add any new features. Instead,
-it just improves the performance of an existing function.
-
-::::::::::::::::::::::::::::
-
-:::::::::::::::::: challenge
-
-We decide to add a new function to our code that gives the user the full list of
-Fibonnaci numbers up to n:
-
-```python
-def fibonacci_list(n):
-    if n < 0:
-        raise ValueError("n must be greater than or equal to 0")
-    elif n == 0:
-        return [0]
-    else:
-        result = [0, 1]
-        while n > 1:
-            result.append(result[-1] + result[-2])
-            n -= 1
-        return result
-```
-
-If the previous version was 3.2.1, what should the new version be?
-
-::::::::::::::::::::::::::::
-
-::::::::::::::::::: solution
-
-3.3.0. We've added new features to our software, but we haven't changed the existing
-API. Therefore the minor version should be incremented, and the patch number should be
-reset to zero.
-
-::::::::::::::::::::::::::::
-
-:::::::::::::::::: challenge
-
-Our users seem to prefer the `fibonacci_list` function, so we decide to streamline our
-software by removing the original function and renaming the new one `fibonacci`.
-
-```python
-def fibonacci(n):
-    if n < 0:
-        raise ValueError("n must be greater than or equal to 0")
-    elif n == 0:
-        return [0]
-    else:
-        result = [0, 1]
-        while n > 1:
-            result.append(result[-1] + result[-2])
-            n -= 1
-        return result
-```
-
-If the previous version was 3.4.5, what should the new version be?
-
-::::::::::::::::::::::::::::
-
-::::::::::::::::::: solution
-
-4.0.0. By removing a function and changing the behaviour of another, we have changed
-the public API in a manner which is not backwards-compatible, and thus this might break
-our user's code. We therefore must increment the major number, and set both the minor
-and patch numbers to zero.
-
-::::::::::::::::::::::::::::
 
 We can add a version to our code by adding a `__version__` to our top-most `__init__.py`
 file:
@@ -224,45 +96,7 @@ be updated if we change the _public API_ of our software. Therefore, if we chang
 behaviour of any functions or classes intended for internal use, and the public API is
 unchanged, we only need to update the patch number.
 
-As discussed in our [lesson on packages](02-packages.Rmd),
-e can indicate that a function, class, or variable is only intended for internal use
-by prepending their name with an underscore (`_myvar`, `_myfunc`, `_MyClass`),
-excluding it from `__all__`, and excluding it from the user API in any published
-documentation (although it may be a good idea to document private objects in a separate
-developer API).
 
-When we update the version of our software and release it publically, we must not
-go back and change it, no matter how tempting the prospect may be! Any fixes to our
-software may be perfomed by further releases, usually via the patch number. If a
-vulnerability is found in an old version of our software, it is permissible to return
-to it and release a new patch. For example, the last version of Python 2 was version
-2.7.18, released in April 2020 -- over a decade after the release of Python 3.0. If we
-choose to stop supporting an old version of our software, and therefore leave any
-vulnerabilities intact, this should be clearly stated to our users, and they should be
-strongly advised to upgrade.
-
-With this understanding of semantic versioning, we can now better understand the
-behaviour of the 'compatible release' comparator `~=` that we can use when setting
-dependencies in `pyproject.toml`:
-
-```toml
-dependencies = [
-    "numpy ~= 1.22.1",
-]
-```
-
-This means that we require a version of NumPy which has at least all of the features of
-version 1.22.1, but maintains backwards compatibility with it. `pip` will aim to
-get the highest possible version that matches, so if a patch is released, it will
-get version 1.22.2. If a new minor version is released, it will install 1.23.0. This
-continues until the release of 2.0.0, which `pip` will not install. This is
-equivalent to:
-
-```toml
-dependencies = [
-    "numpy >= 1.22.1, == 1.*",
-]
-```
 
 ### Unstable Versions
 
@@ -392,7 +226,7 @@ can install it, and how to use it. For example, we may use the following file
     To install from this repo:
 
     ```
-    $ git clone github.com/username/epi_models
+    $ git clone github.com/username/learn-hatch
     $ cd epi_models
     $ pip install .
     ```
@@ -413,16 +247,18 @@ can install it, and how to use it. For example, we may use the following file
 This should be included at the top level of our project:
 
 <code>
-&#128193; epi\_models<br>
+&#128193; learn-hatch<br>
 |<br>
 |\_\_\_\_&#128220; pyproject.toml<br>
 |\_\_\_\_&#128220; README.md<br>
-|\_\_\_\_&#128230; epi\_models<br>
+\ \ \ \ \ &#128193; src<br>
 \ \ \ \ \ |<br>
-\ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
-\ \ \ \ \ |\_\_\_\_&#128220; \_\_main\_\_.py<br>
-\ \ \ \ \ |\_\_\_\_&#128193; models<br>
-\ \ \ \ \ |\_\_\_\_&#128193; plotting<br>
+\ \ \ \ \ |\_\_\_\_&#128230; epi\_models<br>
+\ \ \ \ \ \ \ \ \ \ |<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_main\_\_.py<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; models<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; plotting<br>
 </code>
 
 It should be included in our package metadata by adding the following line in our
@@ -446,18 +282,22 @@ project simply by adding a `LICENSE`, `LICENSE.txt`, or `LICENSE.md` file to the
 level of our project:
 
 <code>
-&#128193; epi\_models<br>
+&#128193; learn-hatch<br>
 |<br>
 |\_\_\_\_&#128220; pyproject.toml<br>
 |\_\_\_\_&#128220; README.md<br>
 |\_\_\_\_&#128220; LICENSE.md<br>
-|\_\_\_\_&#128230; epi\_models<br>
+\ \ \ \ \ &#128193; src<br>
 \ \ \ \ \ |<br>
-\ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
-\ \ \ \ \ |\_\_\_\_&#128220; \_\_main\_\_.py<br>
-\ \ \ \ \ |\_\_\_\_&#128193; models<br>
-\ \ \ \ \ |\_\_\_\_&#128193; plotting<br>
+\ \ \ \ \ |\_\_\_\_&#128230; epi\_models<br>
+\ \ \ \ \ \ \ \ \ \ |<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_main\_\_.py<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; models<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; plotting<br>
 </code>
+
+
 
 One of the simplest and most widely used licenses is the MIT License, which is very
 permissive. It requires users of your software to retain its copyright notice if
@@ -521,12 +361,6 @@ highly recommended that you use it for managing your Python projects.
 GitHub is an online service for hosting `git`-based software projects, and it is a great
 way to share our code and collaborate with others.
 
-:::::::::::::::::::: callout
-
-GitHub is not the only service you can use for hosting your source code. GitLab and
-BitBucket are popular alternatives.
-
-::::::::::::::::::::::::::::
 
 Once our code is hosted on GitHub, we can create releases and assign them a tag. This
 tag should be the version number of the release. We will see later how to use GitHub
@@ -590,7 +424,7 @@ code and to manage its development, and to use a service like PyPI to host packa
 our users can install.
 
 
-## Extra: Consistent Versioning with `setuptools-scm`
+## Extra: Consistent Versioning with `hatch-vcs`
 
 An issue with using GitHub to create new releases is that the project version can
 easily become desynced. The version needs to be specified in three places:
@@ -599,19 +433,17 @@ easily become desynced. The version needs to be specified in three places:
 - The `version` field in `pyproject.toml`
 - `__version__` in our `__init__.py`
 
-It is possible to have all three determined by `git` tags using `setuptools-scm`. This
+It is possible to have all three determined by `git` tags using `hatch-vcs`. This
 can be set as a requirement of the build system:
 
 ```toml
 # file: pyproject.toml
 
+# Build system configuration
 [build-system]
-requires = [
-    "setuptools >= 65",
-    "setuptools_scm[toml]",
-    "wheel",
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+
+build-backend = "hatchling.build"
 ```
 
 With this, we no longer need to provide an entry for `project.version`, and instead
@@ -631,11 +463,21 @@ Following this, we should add the following section elsewhere in `pyproject.toml
 ```toml
 # file: pyproject.toml
 
-[tool.setuptools_scm]
-write_to = "epi_models/_version.py"
+# Hatch versioning configuration
+[tool.hatch.version]
+source = "vcs"
+
+# Version control system (VCS) versioning
+[tool.hatch.version.vcs]
+tag-pattern = "v*"  # Git tags starting with 'v' will be used for versioning
+fallback-version = "0.0.0"
+
+# Version file location for VCS
+[tool.hatch.build.hooks.vcs]
+version-file = "src/epi_models/_version.py"
 ```
 
-Now, when we install or build the project, `setuptools-scm` will create a new file
+Now, when we install or build the project, `hatch-vcs` will create a new file
 `_version.py` inside of our built package. If our git tag is `1.2.3`, this will contain:
 
 ```python
@@ -650,40 +492,52 @@ This can be retrieved at runtime by adding the following to `__init__.py`:
 ```python
 # file: __init__.py
 
-from importlib.metadata import version, PackageNotFoundError
+from epi_models._version import __version__
 
-try:
-    __version__ = version("epi_models")
-except PackageNotFoundError:
-    # If the package is not installed, don't add __version__
-    pass
-```
-
-Note that `importlib.metadata` was added to the Python standard library in version 3.8.
-Earlier versions will need to instead load an external package `importlib_metadata`,
-which works in the same way. We can account for both using:
-
-```python
-# file: __init__.py
-
-try:
-    from importlib.metadata import version, PackageNotFoundError
-except ImportError:
-    from importlib_metadata import version, PackageNotFoundError
-```
-
-We'll also need to account for `importlib_metadata` in our `pyproject.toml` as follows:
-
-```toml
-# file: pyproject.toml
-[project]
-dependencies = [
-    'importlib_metadata; python_version < "3.8"',
-]
 ```
 
 Now, our Git tags, `__version__`, and `pyproject.toml` `version` will automatically be
 kept in sync.
+
+
+We will need to add the dynamically generated `_version.py` to our `.gitignore`
+
+```bash
+# file: .gitignore
+
+src/epi_models/_version.py
+```
+
+### Adding git tags
+
+Before adding a new tag we should commit all our current changes and push them to our remote repo.
+
+Then we can add a new tag like so:
+
+```bash
+# list tags
+git tag
+
+# Add new tag
+git tag -a 0.1.0 -m "Initial minor release"
+
+# Push the tag to github
+git push origin 0.1.0
+
+# list tags
+git tag
+```
+
+Now that we have a new tag let's re-install the package and check the version:
+
+```bash
+pip install -e .
+
+epi_models --version
+```
+
+
+
 
 ## PyPI, the Python Packaging Index
 
@@ -725,13 +579,12 @@ keywords = [
 # license we're using, etc.
 classifiers = [
     "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
     "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
     "License :: OSI Approved :: MIT License",
-    "Natural Language :: English",
-    "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.8",
-    "Topic :: Scientific/Engineering",
 ]
+
 ```
 
 Before discussing how to get our project hosted on PyPI, we'll quickly discuss 'wheel'
@@ -807,20 +660,19 @@ whenever we try to install something. In order to meet the needs of as many user
 possible, it's also possible for us to upload multiple wheels for each release -- one
 for each targeted Python version and operating system.
 
-## `build` and `twine`
+## `hatch build`
 
-So how do we create a wheel file to upload? The standard tool used to create wheel files
-is `build`:
+So how do we create a wheel file to upload? The Hatch library can be used to build and publish wheels.
 
 ```bash
-$ pip install build
+$ pip install hatch
 ```
 
 As we already have a `pyproject.toml`, `build` has everything it needs to create a
 wheel file. It can be called simply using:
 
 ```bash
-$ python3 -m build
+$ hatch build
 ```
 
 This will create a new directory `./dist` containing the following:
@@ -844,46 +696,83 @@ We'll see that it contains our package along with a second directory
 and README file. Note that we should remove the unzipped directories from `./dist`
 before the upload stage.
 
-The second file `build` created is a `.tar.gz` file -- a gzip-compressed tarball. This
+The second file `hatch build` created is a `.tar.gz` file -- a gzip-compressed tarball. This
 is a 'source distribution', which is used as a backup by `pip` if it can't find a
 suitable wheel file to install.
 
-The tool for uploading our package to PyPI is `twine`:
+### Publish Wheels to test-pypi
+
+The tool for uploading our package to PyPI is `hatch publish`.
+
+Note: before we upload our package we will need to make sure we are using unique package names.
+
+Change you package name from to `githubusername-epi_modules`.
+
+You will need to change the package name in the following locations:
+- pyproject.toml
+    - project.name
+    - project.scripts entrypoint
+- The `src/epi_models` dir
+- Any relative imports in the modules
+
+Test that the package can still be installed.
 
 ```bash
-$ pip install twine
+pip uninstall epi_modules
+
+pip install -e .
+
+epi_modules --version
 ```
 
-We can check that our package is well-formed by running `twine check`:
+
+Lets commit those changes and add a new tag.
 
 ```bash
-$ twine check dist/*
+# list tags
+git tag
+
+# Add new tag
+git tag -a 0.1.1 -m "Edit package name"
+
+# Push the tag to github
+git push origin 0.1.1
+
+# list tags
+git tag
 ```
 
-If this returns that the package is okay, we can test the distribution of our package
-by uploading to TestPyPI:
+We can test the distribution of our package by uploading to TestPyPI.
+
+First we will need to create a "token" on test-pypi to use as a temporary password.
 
 ```bash
-$ twine upload --repository testpypi dist/*
+$ hatch publish --repo testpypi --user __token__ --auth <your_token_here>
 ```
+
+To avoid entering you token on the cmd line you can provide details as env variables
+
+```bash
+export HATCH_INDEX_USERNAME=__token__ 
+export HATCH_INDEX_AUTH=<your-token>
+```
+
 
 Note that there is a registration process for TestPyPI, and a separate one for PyPI.
+
 Once uploaded to TestPyPI we can check that everything looks correct using the web interface.
+
 If you choose to `pip` download from TestPyPI you may need to specify that the dependencies are gotten 
 from PyPI proper by using the `--extra-indec-url` flag. This is because the dependencies may not be available through TestPyPI.
 
 ```bash
-$. pip install -i https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple epi_models==0.1.0
+$. pip install -i https://test.pypi.org/pypi/ --extra-index-url https://pypi.org/simple githubusername-epi_models==0.1.0
 ```
 
-Once we are happy that all looks correct on TestPyPI we may proceed with installing
-our package to PyPI:
 
-```bash
-$ twine upload dist/*
-```
+The process is the same for publishing to PyPi (but please don't publish this test project!).
 
-That's all we need! Users will then be able to install our package to any machine
+Users will then be able to install our package to any machine
 by calling the following:
 
 ```bash
@@ -953,17 +842,17 @@ jobs:
         with:
           python-version: '3.x'
       # Here we update pip to the latest version and
-      # install 'build'. We won't need 'twine' here.
+      # install 'hatch'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build
+          pip install hatch
       # Here we run build to create a wheel and a
       # .tar.gz source distribution.
       - name: Build package
-        run: python -m build --sdist --wheel
+        run: hatch build
       # Finally, we use a pre-defined action to publish
-      # our package in place of twine.
+      # our package 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -991,6 +880,6 @@ make a new release.
 
 - Versioning our projects is important so that our users know what's compatible.
 - GitHub is a powerful service for hosting our projects and managing their development.
-- Each new release of our packages should be uploaded to PyPI using `build` and `twine`.
+- Each new release of our packages should be uploaded to PyPI using `hatch build` and `hatch publish`.
 
 ::::::::::::::::::::::::::::::::::::::::::::::::

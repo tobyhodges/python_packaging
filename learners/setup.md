@@ -14,77 +14,109 @@ be of interest to some learners. These sections do not need to be covered in ord
 understand the core content of the course.
 
 
-TODO: Updated setup instructions
+## Python environments
 
-## Windows
+In this workshop we will use `conda` to manage Python environments and install packages.
 
-- Install GitBash
-- Install miniforge
+Our preferred flavour of `conda` is provided by Miniforge3, but you could also use Miniconda.
 
+### Windows
+
+Windows users will need to install `GitBash` which is a linux-like terminal that comes pre-installed with Git.
+You will use `conda` from within the `GitBash` shell.
+
+Install:
+- [GitBash](https://gitforwindows.org/)
+- [Miniforge3](https://conda-forge.org/miniforge/)
 
 Windows checks:
 
-- Open GitBash
-- Check for (base) and conda version
-- If base not present, open miniforge prompt and run `conda init bash`
+- Open the `GitBash` terminal app.
+- Check for `(base)` prefix in your prompt. 
+- If `(base)` is not present, open the "miniforge prompt" app and run `conda init bash`
+- Run `conda --version`
 
-## Mac
 
-- Install miniforge
+### Mac
+
+Install:
+- [Miniforge3](https://conda-forge.org/miniforge/)
 
 Mac checks:
 
-- git --version
-- conda version
+- Open a terminal and run `git --version`. You may be prompted to install git.
+- Run `conda --version`
+
+## Configure Git
+
+If you are setting up Git for the first time, you will need to set your user name and email.
+
+```bash
+$ git config --global user.name "Alfredo Linguini"
+$ git config --global user.email "a.linguini@ratatouille.fr"
+```
+
+Please use your own name and email address instead of Alfredo's. And make sure you use the same email associated with your GitHub account.
+
+We will also set the default editor as `nano`.
+
+```bash
+$ git config --global core.editor "nano -w"
+```
+
+## Setup Github
+
+### Create a GitHub account
+
+Create a new account at [GitHub.com](github.com}) if you do not have one.
+
+Use an email address that you will always have access to (not a work or university address)
+
+### Configure SSH access
+
+If you do not have ssh set up for git [create a new ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) and [add the key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) to your github account.
+
+On windows you should do this from the GitBash shell.
+
+To test that your key is correctly configured run:
+
+```bash
+ssh -T git@github.com
+```
+
 
 ## VS Code setup
 
-Install VS Code
+VS Code is a popular Interactive Development Environment (IDE) that we will use to edit our project.
+
+Install:
+- [VS Code](https://code.visualstudio.com/Download)
 
 Windows users:
 - Open VS Code and set GitBash as default terminal
 
-Install Extensions:
+VS Code has a marketplace of community developed extensions. Here are a few that you may find useful when working on Python projects.
+
+Optional extensions:
 - python language support
 - git lens
 - remote ssh
 - github pull requests
 - ruff
 
-## Conda config
+## Create Test-Pypi account
 
-conda update -n base -c conda-forge conda
+PyPi is the Python Package Index, it hosts publically available python packages.
 
-TODO: Check for other recommended settings
+We will practice uploading packages on a clone of PyPi called `test-pypi`.
 
-## Git config
+Setup your test-pypi account:
+- Set up a new account on [test.pypi.org](https://test.pypi.org/)
+- Confirm your email address.
+- Set up 2-factor authentication.
 
-Set global variables:
-- name
-- email
-- default editor
+## Creat project repo
 
-## Create Github account
+Create a new repo in your github account called `learn-hatch` and clone it to your local machine.
 
-- create ssh key and add to github account
-- test key wit ssh -T git@github.com
-
-## Create env for this workshop
-
-Clone demo project repo + all branches
-
-New conda env from env.yml
-
-`conda env create -f environment.yml`
-
-conda env list
-
-cleanup tarballs etc
-
-activate env
-
-Check packages with conda list
-
-# Create Pypi account
-
-may need to create token to link to github
+Tutor to discuss `.gitignore` and licences.

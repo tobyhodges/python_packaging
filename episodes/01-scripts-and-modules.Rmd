@@ -4,8 +4,6 @@ teaching: 20
 exercises: 2
 ---
 
-TODO: Add an episode 0 with discussion on when to write a python package and what makes for a good tool
-
 :::::::::::::::::::::::::::::::::::::: questions 
 
 - What is a 'module' in Python? How does this differ from a 'script'?

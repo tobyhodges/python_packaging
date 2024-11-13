@@ -543,7 +543,7 @@ you to build much more sophisticated command line interfaces.
 
 ## Extra: Advanced `argparse` in `__main__.py`
 
-TODO: Remove advanced argparse?
+TODO: Remove advanced argparse section
 
 Let's return to `plot_SIR.py`, and apply the enhancements discussed in the 'extra'
 sections last lesson:
@@ -616,6 +616,12 @@ def main():
     # should have single character names with a hypen,
     # or longer names with a double dash.
     parser.add_argument(
+        "--version",
+        action="version",
+        version="%(prog)s {version}".format(version=__version__),
+        help="Show program's version number and exit.",
+    )
+    parser.add_argument(
         "-p", "--pop_size", type=int, default=10000000,
         help="Total population size",
     )
@@ -657,223 +663,18 @@ if __name__ == "__main__":
     main()
 ```
 
-This will work if we run `python3 -m epi_models.plotting.plot_SIR`, but it won't work
-if we try to run it using `python3 -m epi_models SIR`, as we need to read from the
-command line in `__main__.py` in order to decide which model to run, but `plot_SIR.py`
-will also try to read from the command line to determine its own setup. Inevitably,
-each scripting interface will expect a different set of arguments. The solution comes in
-the form of `subparsers`. We'll show how these work using the following simple example:
+Finally, we will need to add `__version__` variable to __init__.py
 
 ```python
-# file: subparsers.py
+# File: __init__.py
 
-from argparse import ArgumentParser
-
-parser = ArgumentParser(description="A test program")
-
-# set up subparsers, make them required
-subparsers = parser.add_subparsers(required=True)
-
-# add two subcommands: cmd1 and cmd2
-parser1 = subparsers.add_parser("cmd1")
-parser2 = subparsers.add_parser("cmd2")
-
-# add some args to each
-parser1.add_argument("foo")
-parser1.add_argument("bar")
-parser2.add_argument("baz")
-
-# parse args and print what we get
-args = parser.parse_args()
-print(args)
+__version__ = 0.0.1
 ```
 
-If we try running this with no arguments, it breaks! If we check how it should work
-using `--help`:
+We can now check the version using the `--version` argument.
 
 ```bash
-$ python3 subparsers.py --help
-```
-```result
-usage: subparsers.py [-h] {cmd1,cmd2} ...
-
-A test program
-
-positional arguments:
-  {cmd1,cmd2}
-
-optional arguments:
-  -h, --help   show this help message and exit
-```
-
-We therefore need to supply either `cmd1` or `cmd2` as the first argument. We can then
-get further info on each subcommand:
-
-```bash
-$ python3 subparsers.py cmd1 --help
-```
-```result
-usage: subparsers.py cmd1 [-h] foo bar
-
-positional arguments:
-  foo
-  bar
-
-optional arguments:
-  -h, --help  show this help message and exit
-```
-
-So what if we provide these arguments?
-
-```bash
-$ python3 subparsers.py cmd1 1 2
-```
-```result
-Namespace(bar='2', foo='1')
-```
-
-We see that `foo` and `bar` are defined within `args`, but not `baz`. Similarly:
-
-```bash
-$ python3 subparsers.py cmd2 3
-```
-```result
-Namespace(baz='3')
-```
-
-We can therefore use subparsers to set up multiple independent command line interfaces
-using the same root command. If we wished, we could even create further subparsers from
-our subparsers, leading to a nested command line interface! Something to note is that
-information about which command was chosen is _not_ contained within args; we'll show a
-workaround for this later using `set_defaults()`.
-
-Let's apply subparsers to our `epi_models` package.  First, our `main()` function
-should be split into a function that assigns arguments to an `ArgumentParser`,
-and a function that runs the code using `args`:
-
-```python
-# file: plot_SIR.py
-
-def _add_arguments(parser):
-
-    parser.add_argument(
-        "-p", "--pop_size", type=int, default=10000000,
-        help="Total population size",
-    )
-    parser.add_argument(
-        "-b", "--beta", type=float, default=0.5,
-        help="Average no. of new infections per infected person per day",
-    )
-    parser.add_argument(
-        "-g", "--gamma", type=float, default=0.1,
-        help="Inverse of average number of days taken to recover",
-    )
-    parser.add_argument(
-        "-d", "--days", type=int, default=150,
-        help="Number of days to run the simulation",
-    )
-    parser.add_argument(
-        "-i", "--i0", type=int, default=10,
-        help="Number of infected people at the start of the simulation",
-    )
-    parser.add_argument(
-        "-o", "--output", default="SIR_model.png",
-        help="Output file to save plot to",
-    )
-
-
-def main(args):
-    # Run our code
-    S, I, R = SIR_model(
-        pop_size=args.pop_size,
-        beta=args.beta,
-        gamma=args.gamma,
-        days=args.days,
-        I_0=args.i0,
-    )
-    plot_SIR_model(S, I, R, save_to=args.output)
-```
-
-The `if __name__ == "__main__"` section should be tasked with creating an
-`ArgumentParser` and coordinating everything:
-
-```python
-# file: plot_SIR.py
-
-if __name__ == "__main__":
-    parser = ArgumentParser(
-        prog="SIR_model",
-        description="Solves SIR model and creates a plot",
-    )
-    _add_arguments(parser)
-    args = parser.parse_args()
-    main(args)
-```
-
-As the `_add_arguments(parser)` function doesn't care whether it's supplied with a
-parser or a subparser, this will work just fine if we run this file directly
-using `python3 -m epi_models.plotting.plot_SIR`.
-
-A similar refactor should be applied for every other model. There is no need for
-each model to require the same command line arguments, but they should each have a
-function equivalent to `_add_arguments(parser)` and `main(args)`.
-
-We can then switch between each model in `__main__.py` using subparsers.
-The file below shows how to achieve a rich command line interface for `epi_models`:
-
-```python
-# file: __main__.py
-
-from argparse import ArgumentParser
-
-# Import each _add_arguments and main, giving each an alias
-from .plotting.plot_SIR import main as SIR_main
-from .plotting.plot_SEIR import main as SEIR_main
-from .plotting.plot_SIS import main as SIS_main
-from .plotting.plot_SIR import _add_arguments as add_SIR_arguments
-from .plotting.plot_SIR import _add_arguments as add_SEIR_arguments
-from .plotting.plot_SIR import _add_arguments as add_SIS_arguments
-
-# Create top-level ArgumentParser
-parser = ArgumentParser(
-    prog="epi_models",
-    description="Tool for solving epidemiology models",
-)
-
-# Set up subparsers, adding a new one for each model
-subparsers = parser.add_subparsers(required=True)
-SIR_parser = subparsers.add_parser("SIR")
-SEIR_parser = subparsers.add_parser("SEIR")
-SIS_parser = subparsers.add_parser("SIS")
-
-# Setup each subparser using each model's _add_arguments
-add_SIR_arguments(SIR_parser)
-add_SEIR_arguments(SEIR_parser)
-add_SIS_arguments(SIS_parser)
-
-# Ensure each parser knows which function to call.
-# set_defaults can be used to set a new arg which
-# isn't set on the command line.
-SIR_parser.set_defaults(main=SIR_main)
-SEIR_parser.set_defaults(main=SEIR_main)
-SIS_parser.set_defaults(main=SIS_main)
-
-# Extract command line arguments and run
-args = parser.parse_args()
-args.main(args)
-```
-
-Here, we used `set_defaults()` to assign each model's `main()` function to the variable
-`main` within `args`. This will be set depending on which subcommand the user provides.
-Each model's `_add_arguments` can be used as a 'black box', and each can be developed
-independently of the others.
-
-Following this, we can use `epi_models` to run several different models, each with
-their own command line interface!
-
-```bash
-$ python3 -m epi_models SIR --pop_size=300 --output="SIR.png"
-$ python3 -m epi_models SEIR --alpha=1
+$ python3 -m epi_models.plotting.plot_SIR --version
 ```
 
 ::::::::::::::::::::::::::::: keypoints

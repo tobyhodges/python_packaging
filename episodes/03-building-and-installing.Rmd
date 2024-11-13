@@ -1,16 +1,9 @@
 ---
-title: "Building and Installing Packages using setuptools"
+title: "Building and Installing Packages using hatch"
 teaching: 20
 exercises: 0
 ---
 
-TODO: Migrate setuptools to hatch
-TODO: Remove refs to setup.py
-TODO: Remove venv, explictly use conda envs
-TODO: modify package structure to nest within src dir 
-TODO: update black to ruff
-TODO: pip install in editable mode
-TODO: New section: Write pytest tests 
 
 :::::::::::::::::::::::::::::::::::::: questions 
 
@@ -21,9 +14,9 @@ TODO: New section: Write pytest tests
 
 ::::::::::::::::::::::::::::::::::::: objectives
 
-- Use `venv` to manage Python environments
+- Use `conda` to manage Python environments
 - Understand what happens when we install a package
-- Use `setuptools` to install packages to our local environment
+- Use `pip` and `hatch` to install packages to our local environment
 
 ::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -48,7 +41,7 @@ directory of our project and try the following:
 
 ```bash
 $ cd /path/to/my/workspace/epi_models
-$ python3 -m pip install .
+$ python -m pip install .
 ```
 
 We get the following error:
@@ -64,19 +57,10 @@ recommended to write only `pyproject.toml`. This was introduced by
 define a Python project, and all tools that build, install, and publish Python packages
 are expected to use it.
 
-::::::::::::: discussion
-
-### What is `setup.py`?
-
-`setup.py` serves a similar role to `pyproject.toml`, but it is no longer recommended
-for use. The lesson on the [history of build tools](04-history-of-packaging.Rmd)
-explains how it works and why the community has moved away from it.
-
-::::::::::::::::::::::::
 
 By making our project `pip`-installable, we'll also make it very easy to publish our
 packages on public repositories -- this will be covered in our
-[lesson on package publishing](./05-publishing.Rmd). After publishing our work, our
+[lesson on package publishing](./04-publishing.Rmd). After publishing our work, our
 users will be able to download and install our package using `pip` from any machine
 of their chocie!
 
@@ -98,83 +82,80 @@ manage competing dependencies:
 A good way to handle these sorts of conflicts is to instead use _virtual environments_
 for each project. A number of tools have been developed to manage virtual environments,
 such as `venv`, which is a standard built-in Python tool, and `conda`, which is a
-powerful third-party tool. We'll focus on `venv` here, but both tools work similarly.
+powerful third-party tool. 
 
 :::::::::::::::::::::: callout
 
-You can `pip install` packages into a `conda` virtual environment, so much of the advice
-in this lesson will still apply if you prefer to use `conda`.
+You can `pip install` packages into a `conda` virtual environment.
 
 ::::::::::::::::::::::::::::::
 
 If we're using Linux, we can find which Python environment we're using by calling:
 
 ```bash
-$ which python3
+$ which python
 ```
 
 If we're using the default system environment, the result is something like the
 following:
 
 ```output
-/usr/bin/python3
+/usr/bin/python
 ```
 
-To create a new virtual environment using `venv`, we can call:
+To create a new `conda` environment called "packaging" with Python v3.12 installed, we can call:
 
 ```bash
-$ python3 -m venv /path/to/my/env
+# Create a new environment
+$ conda create -n packaging python=3.12 matplotlib hatch -c conda-forge
+
+# It is a good idea to clean up cached and unused files 
+$ conda clean --all
+
+# You can always check available envs with
+$ conda env list
 ```
 
-This will create a new directory at the location `/path/to/my/env`. Note that this can
-be a relative path, so just calling `python3 -m venv myenv` will create the virtual
-environment in the directory `./myenv`. We can then 'activate' the virtual environment
-using:
+Now we can activate our new conda environment:
 
 ```bash
-$ source /path/to/my/env/bin/activate
+# Start the env
+$ conda activate packaging 
+
+# To check which packages are installed in the env run:
+$ conda list
 ```
 
 Checking which Python we're running should now give a different result:
 
 ```bash
-$ which python3
+$ which python
 ```
 ```output
-/path/to/my/env/bin/python3
+/Users/username/miniforge3/envs/packaging/bin/python
 ```
 
 If we now install a new package, it will be installed within our new virtual environment
 instead of being installed to the system libraries. For example:
 
 ```bash
-$ python3 -m pip install numpy
+$ pip install numpy
 ```
 
-We should now find NumPy installed at the following location (note that the Python
-version may not match yours):
+We can check the location of `numpy` using `pip show`:
 
 ```bash
-$ ls /path/to/my/env/lib/python3.8/site-packages/numpy
+pip show numpy
 ```
 
-`site-packages` is a standard location to store installed Python packages. We can see
-this by analysing Python's import path:
+`site-packages` is a standard location to store installed Python packages. 
 
-```python
->>> import sys
->>> print(sys.path)
-```
 
-```result
-['', '/usr/lib/python38.zip', '/usr/lib/python3.8', '/usr/lib/python3.8/lib-dynload', '/path/to/my/env/lib/python3.8/site-packages']
-```
-
-If we no longer wish to use this virtual environment, we can return to the system
+If we no longer wish to use this virtual environment, we can return to the base
 environment by calling:
 
 ```bash
-$ deactivate
+$ conda deactivate
 ```
 
 Virtual environments are very useful when we're testing our code, as they allow us to
@@ -224,13 +205,11 @@ dob = 2002-03-05
 foo = "bar"
 ```
 
-We can read this using the `toml` library in Python:
+We can read this using the `tomllib` library in Python:
 
-```bash
-$ python3 -m pip install toml
-```
+
 ```python
->>> import toml
+>>> import tomllib
 >>> with open("mytoml.toml", "r") as f:
 ...     data = toml.load(f)
 >>> print(data)
@@ -258,12 +237,6 @@ Python types:
 }
 ```
 
-:::::::::::::::::::: callout
-
-Since Python 3.11, `tomllib` is part of Python's standard library. It works the same
-as above, but you'll need to import `tomllib` instead of `toml`.
-
-::::::::::::::::::::::::::::
 
 ## Installing our package with `pyproject.toml`
 
@@ -278,58 +251,55 @@ can be achieved with this file:
 - Configure our development tools.
 
 To make our package `pip`-installable, we should add the file `pyproject.toml` to the
-top-level `epi_models` directory:
+top-level `learn-hatch` directory:
 
 <code>
-&#128193; epi\_models<br>
+&#128193; learn-hatch<br>
 |<br>
 |\_\_\_\_&#128220; pyproject.toml<br>
-|\_\_\_\_&#128230; epi\_models<br>
+|<br>
+|\_\_\_\_&#128193; src<br>
 \ \ \ \ \ |<br>
-\ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
-\ \ \ \ \ |\_\_\_\_&#128220; \_\_main\_\_.py<br>
-\ \ \ \ \ |<br>
-\ \ \ \ \ |\_\_\_\_&#128193; models<br>
-\ \ \ \ \ |\ \ \ \ |<br>
-\ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
-\ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; SIR.py<br>
-\ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; SEIR.py<br>
-\ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; SIS.py<br>
-\ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; utils.py<br>
-\ \ \ \ \ |<br>
-\ \ \ \ \ |\_\_\_\_&#128193; plotting<br>
+\ \ \ \ \ |\_\_\_\_&#128230; epi\_models<br>
 \ \ \ \ \ \ \ \ \ \ |<br>
 \ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
-\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; plot\_SIR.py<br>
-\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; plot\_SEIR.py<br>
-\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; plot\_SIS.py<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_main\_\_.py<br>
+\ \ \ \ \ \ \ \ \ \ |<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; models<br>
+\ \ \ \ \ \ \ \ \ \ |\ \ \ \ |<br>
+\ \ \ \ \ \ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
+\ \ \ \ \ \ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; SIR.py<br>
+\ \ \ \ \ \ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; SEIR.py<br>
+\ \ \ \ \ \ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; SIS.py<br>
+\ \ \ \ \ \ \ \ \ \ |\ \ \ \ |\_\_\_\_&#128220; utils.py<br>
+\ \ \ \ \ \ \ \ \ \ |<br>
+\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; plotting<br>
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |<br>
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; plot\_SIR.py<br>
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; plot\_SEIR.py<br>
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; plot\_SIS.py<br>
 </code>
 
 
 The first section in our `pyproject.toml` file should specify which build system we
 wish to use, and additionally specify any version requirements for packages used to
-build our code. This is necessary to avoid a circular dependecy problem that occurred
-with earlier Python build systems, in which the user had to run an install program to
-determine the project's dependencies, but needed to already have the correct build
-tool installed to run the install program -- see the
-[lesson on historical build tools](04-history-of-packaging.Rmd) for more detail.
-We will choose to use `setuptools`, which requires the following:
+build our code. 
+
+We will choose to use `hatchling`, which requires the following:
 
 ```toml
 # file: pyproject.toml
 
 [build-system]
-requires = [
-    "setuptools >= 65",
-    "wheel >= 0.38,
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 ```
 
 - `requires` is set to a list of strings, each of which names a dependency of the build
   system and (optionally) its minimum version. This uses the same version syntax as
   `pip`.
-- `build-backend` is set to a sub-module of `setuptools` which implements the
+- `build-backend` is set to a sub-module of `hatchling` which implements the
   [PEP 517][PEP 517] build interface.
 
 With our build system determined, we can add some metadata that defines our project.
@@ -340,40 +310,44 @@ dependencies:
 ```toml
 # file: pyproject.toml
 
+# Build system configuration
 [build-system]
-requires = [
-    "setuptools >= 65",
-    "wheel >= 0.38,
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
+# Project metadata
 [project]
 name = "epi_models"
 version = "0.1.0"
 dependencies = [
     "matplotlib",
 ]
+
+# Hatch build configuration
+[tool.hatch.build]
+source = "src"
+
 ```
 
 That's all we need! We'll discuss versioning in our
-[lesson on publishing](05-publishing.Rmd). With this done, we can install our package
+[lesson on publishing](04-publishing.Rmd). With this done, we can install our package
 using:
 
 ```bash
-$ python3 -m pip install .
+$ pip install .
 ```
 
 This will automatically download and install our dependencies, and our package will be
 importable regardless of which directory we're in.
 
 The installed package can be found in the directory
-`/path/to/my/env/lib/python3.8/site-packages/epi_models` along with a new directory,
-`epi_models-0.1.0.dist-info`, which simply contains metadata describing our project. If
-we look inside our installed package, we'll see that our files have been copied, and
+`/Users/username/miniforge3/envs/packaging/lib/python3.12/site-packages/epi_models`.
+
+If we look inside our installed package, we'll see that our files have been copied, and
 there is also a `__pycache__` directory:
 
 ```bash
-$ ls /path/to/my/env/lib/python3.8/site-packages/epi_models
+$ ls /path/to/my/env/lib/python3.12/site-packages/epi_models
 ```
 
 ```results
@@ -389,7 +363,7 @@ we'll see those have been compiled to bytecode too.
 If we wish to uninstall, we may call:
 
 ```bash
-$ python3 -m pip uninstall epi_models
+$ pip uninstall epi_models
 ```
 
 We can also create an 'editable install', in which any changes we make to our code are
@@ -397,9 +371,7 @@ instantly recognised by any codes importing it -- this mode can be very useful w
 developing our code, especially when working on documentation or tests. 
 
 ```bash
-$ python3 -m pip install -e .
-$ # Or...
-$ python3 -m pip install --editable .
+$ pip install -e .
 ```
 
 :::::::::::::::::::::::::::::::: callout
@@ -409,7 +381,7 @@ standardised in [PEP 660][PEP 660], and only recently implemented in `pip`. You 
 need to upgrade to use this feature:
 
 ```bash
-$ python3 -m pip install --upgrade pip
+$ python -m pip install --upgrade pip
 ```
 
 ::::::::::::::::::::::::::::::::::::::::
@@ -423,30 +395,31 @@ the recommended core metadata keys are described below:
 ```toml
 # file: pyproject.toml
 
+
+# Build system configuration
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Project metadata
 [project]
+name = "epi_models"
+version = "0.1.0"
+dependencies = [
+    "matplotlib",
+]
 
-# name: String, REQUIRED
-name = "my_project"
-
-# version: String, REQUIRED
-# Should follow PEP 440 rules
-# Can be provided dynamically, see the lesson on publishing
-version = "1.2.3"
-
-# description: String
 # A simple summary of the project
 description = "My wonderful Python package"
 
-# readme: String
+
 # Full description of the project.
 # Should be the path to your README file, relative to pyproject.toml
 readme = "README.md"
 
-# requires-python: String
 # The Python version required by the project
 requires-python = ">=3.8"
 
-# license: Table
 # The license of your project.
 # Can be provided as a file or a text description.
 # Discussed in the lesson on publishing
@@ -454,112 +427,36 @@ license = {file = "LICENSE.md"}
 # or...
 license = {text = "BDS 3-Clause License"}
 
-# authors: Array of Tables
-# Can also be called 'maintainers'.
+
+
+# Authors / maintainers
 # Each entry can have a name and/or an email
 authors = [
     {name = "My Name", email = "my.email@email.net"},
     {name = "My Friend", email = "their.email@email.net"},
 ]
 
-# urls: Table
-# Should describe where to find useful info for your project
-urls = {source = "github.com/MyProfile/my_project", documentation = "my_project.readthedocs.io/en/latest"}
-
 # dependencies: Array of Strings
 # A list of requirements for our package
 dependencies = [
-    "numpy >= 1.20",
-    "pyyaml",
+    "matplotlib",
 ]
-```
 
-Note that some of the longer tables in our TOML file can be written using non-inline
-tables if it improved readability:
-
-```toml
+# Project URLs
 [project.urls]
-Source = "github.com/MyProfile/my_project",
-Documentation = "my_project.readthedocs.io/en/latest",
+homepage = "https://github.com/username/learn-hatch"
+documentation = "https://github.com/username/learn-hatch"
+repository = "https://github.com/username/learn-hatch"
+
+# Hatch build configuration
+[tool.hatch.build]
+source = "src"
+
+
+
 ```
 
-## Alternative Directory Structures
-
-`setuptools` provides some additional tools to help us install our package if they use a
-different layout to the 'flat' layout we covered so far. A popular alternative layout is
-the `src`-layout:
-
-<code>
-&#128193; epi_models<br>
-|<br>
-|\_\_\_\_&#128220; pyproject.toml<br>
-|\_\_\_\_&#128193; src<br>
-\ \ \ \ \ |<br>
-\ \ \ \ \ |\_\_\_\_&#128230; epi_models<br>
-\ \ \ \ \ \ \ \ \ \ |<br>
-\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_init\_\_.py<br>
-\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128220; \_\_main\_\_.py<br>
-\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; models<br>
-\ \ \ \ \ \ \ \ \ \ |\_\_\_\_&#128193; plotting<br>
-</code>
-
-The main benefit of this choice is that `setuptools` won't accidentally bundle any
-utility modules stored in the top-level directory with our package. It can also be
-neater when one project contains multiple packages. Note that directories and files with
-special names are excluded by default regardless of which layout we choose, such as
-`test/`, `docs/`, and `setup.py`.
-
-We can also disable automatic package discovery and explicitly list the packages we
-wish to install:
-
-```toml
-# file: pyproject.toml
-
-[tool.setuptools]
-packages = ["my_package", "my_other_package"]
-```
-
-Note that this is not part of the [PEP 621][PEP 621] standard, and therefore instead
-of being listed under the `[project]` header, it is a method specific to `setuptools`.
-Finally, we may set up custom package discovery:
-
-```toml
-# file: pyproject.toml
-
-[tool.setuptools.packages.find]
-where = ["my_directory"]
-include = ["my_package", "my_other_package"]
-exclude = ["my_package.tests*"]
-```
-
-However, for ease of use, it is recommended to stick to either the flat layout or
-the `src` layout.
-
-## Package Data
-
-Sometimes our code requires some non-`.py` files in order to function properly, but
-these would not be picked up by automatic package discovery. For example, the project
-may store default input data in `.json` files. These could be included with your
-package by adding the following to `pyproject.toml`:
-
-
-```toml
-# file: pyproject.toml
-
-[tool.setuptools.package-data]
-epi_models = ["*.json"]
-```
-
-Note that this would grab only `.json` files in the top-level directory of our
-project. To include data files from all packages and sub-packages, we should instead
-write:
-
-```toml
-# file: pyproject.toml
-
-[tool.setuptools.package-data]
-"*" = ["*.json"]
-```
+TODO: Discuss including package data file with hatch.
 
 ## Installing Scripts
 
@@ -567,16 +464,16 @@ If our package contains any scripts and/or a `__main__.py` file, we can run thos
 anywhere on our system after installation:
 
 ```bash
-$ python3 -m epi_models
-$ python3 -m epi_models.plotting.plot_SIR
+$ python -m epi_models
+$ python -m epi_models.plotting.plot_SIR
 ```
 
 With a little extra work, we can also install a simplified interface that doesn't
-require `python3 -m` in front. This is how tools like `pip` can be invoked using two
+require `python -m` in front. This is how tools like `pip` can be invoked using two
 possible methods:
 
 ```bash
-$ python3 -m pip  # Invoke with python
+$ python -m pip  # Invoke with python
 $ pip             # Invoke via console-scripts entrypoint
 ```
 
@@ -585,10 +482,7 @@ This can be achieved by adding a table `scripts` under the `[project]` header:
 ```toml
 # file: pyproject.toml
 
-[project]
-scripts = {epi_models = "epi_models.__main__:main"}
-
-# Alternative form:
+# Add entry points
 [project.scripts]
 epi_models = "epi_models.__main__:main"
 ```
@@ -611,14 +505,14 @@ main()
 This will allow us to run our package as a script directly from the command line
 
 ```bash
-$ python3 -m pip install .
+$ python -m pip install .
 $ epi_models --help
 ```
 
 Note that we'll still be able to run our code using the longer form:
 
 ```bash
-$ python3 -m epi_models --help
+$ python -m src/epi_models --help
 ```
 
 If we have multiple scripts in our package, these can all be given invidual console
@@ -632,6 +526,8 @@ epi_models = "epi_models.__main__:main"
 epi_models_sir = "epi_models.plotting.plot_SIR:main"
 ```
 
+TODO: remove this? 
+
 So how do these scripts work? When we activate a virtual environment, a new entry is
 added to our `PATH` environment variable linking to `/path/to/my/env/bin/`:
 
@@ -643,7 +539,7 @@ After installing our console scripts, we can find a new file in this directory w
 the name we assigned to it. For example, `/path/to/my/env/bin/epi_models`:
 
 ```python
-#!/path/to/my/env/bin/python3
+#!/path/to/my/env/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
@@ -660,6 +556,8 @@ our Python environment, it's available for use as long we're using that environm
 but as soon as we call `deactivate`, it is removed from our `PATH`.
 
 ## Setting Dependency Versions
+
+TODO: make this an info box.
 
 Earlier, when setting `dependencies` in our `pyproject.toml`, we chose to specify
 a minimum requirement for `numpy`, but not for `pyyaml`:
@@ -735,25 +633,12 @@ These dependencies can be installed by adding the name of each optional dependen
 group in square brackets after telling `pip` what we want to install:
 
 ```bash
-$ pip install .[test]     # Include testing dependencies
-$ pip install .[doc]      # Include documentation dependencies
-$ pip install .[test,doc] # Include all dependencies
+$ pip install ".[test]"     # Include testing dependencies
+$ pip install ".[doc]"     # Include documentation dependencies
+$ pip install ".[test,doc]" # Include all dependencies
 ```
 
-## Additional Tools
 
-Some additional tools unrelated to package building also make use of `pyproject.toml`.
-Their settings are typically set using `[tool.*]` headings. For example, the tool
-[`black`][black] which is used to auto-format Python code can be configured here:
-
-```toml
-[tool.black]
-line-length = 120
-```
-
-Not all popular Python tools have adopted `pyproject.toml` yet. Notably, the linter
-[`flake8`][flake8] cannot be configured this way, and users will instead need to use
-a `.flake8` file (or one of a few alternative config files).
 
 ::::::::::::::::::::::::::::: keypoints
 
