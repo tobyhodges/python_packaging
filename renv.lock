@@ -738,9 +738,12 @@
     },
     "sandpaper": {
       "Package": "sandpaper",
-      "Version": "0.16.10.9000",
+      "Version": "0.16.10",
       "Source": "Repository",
-      "Repository": "carpentries_archive",
+      "Repository": "https://carpentries.r-universe.dev",
+      "RemoteUrl": "https://github.com/carpentries/sandpaper",
+      "RemoteRef": "0.16.10",
+      "RemoteSha": "d174084c7e20eee462b1c6ab3ec34206952e8d83",
       "Requirements": [
         "assertthat",
         "callr",
@@ -767,7 +770,7 @@
         "withr",
         "yaml"
       ],
-      "Hash": "ac4f375c153975a11b828a9ff96d47fd"
+      "Hash": "05f5daf1d9444c208bc136ef3125cb1e"
     },
     "sass": {
       "Package": "sass",
