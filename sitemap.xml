@@ -22,6 +22,12 @@
     <loc>https://carpentries-incubator.github.io/python_packaging/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/aio.html</loc>
+  </url>
+  <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/images.html</loc>
+  </url>
+  <url>
     <loc>https://carpentries-incubator.github.io/python_packaging/index.html</loc>
   </url>
   <url>
@@ -46,10 +52,28 @@
     <loc>https://carpentries-incubator.github.io/python_packaging/instructor/LICENSE.html</loc>
   </url>
   <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/instructor/aio.html</loc>
+  </url>
+  <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/instructor/images.html</loc>
+  </url>
+  <url>
     <loc>https://carpentries-incubator.github.io/python_packaging/instructor/index.html</loc>
   </url>
   <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/instructor/instructor-notes.html</loc>
+  </url>
+  <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/instructor/key-points.html</loc>
+  </url>
+  <url>
     <loc>https://carpentries-incubator.github.io/python_packaging/instructor/profiles.html</loc>
+  </url>
+  <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/instructor-notes.html</loc>
+  </url>
+  <url>
+    <loc>https://carpentries-incubator.github.io/python_packaging/key-points.html</loc>
   </url>
   <url>
     <loc>https://carpentries-incubator.github.io/python_packaging/profiles.html</loc>
