@@ -740,10 +740,7 @@
       "Package": "sandpaper",
       "Version": "0.16.10",
       "Source": "Repository",
-      "Repository": "https://carpentries.r-universe.dev",
-      "RemoteUrl": "https://github.com/carpentries/sandpaper",
-      "RemoteRef": "0.16.10",
-      "RemoteSha": "d174084c7e20eee462b1c6ab3ec34206952e8d83",
+      "Repository": "carpentries",
       "Requirements": [
         "assertthat",
         "callr",
@@ -811,7 +808,7 @@
       "Package": "systemfonts",
       "Version": "1.1.0",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "cpp11",
