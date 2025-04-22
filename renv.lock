@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.4.3",
+    "Version": "4.5.0",
     "Repositories": [
       {
         "Name": "carpentries",
@@ -1066,7 +1066,7 @@
       "NeedsCompilation": "yes",
       "Author": "Joe Cheng [aut], Winston Chang [aut, cre], Posit, PBC fnd [cph], Hector Corrada Bravo [ctb], Jeroen Ooms [ctb], Andrzej Krzemienski [cph] (optional.hpp), libuv project contributors [cph] (libuv library, see src/libuv/AUTHORS file), Joyent, Inc. and other Node contributors [cph] (libuv library, see src/libuv/AUTHORS file; and http-parser library, see src/http-parser/AUTHORS file), Niels Provos [cph] (libuv subcomponent: tree.h), Internet Systems Consortium, Inc. [cph] (libuv subcomponent: inet_pton and inet_ntop, contained in src/libuv/src/inet.c), Alexander Chemeris [cph] (libuv subcomponent: stdint-msvc2008.h (from msinttypes)), Google, Inc. [cph] (libuv subcomponent: pthread-fixes.c), Sony Mobile Communcations AB [cph] (libuv subcomponent: pthread-fixes.c), Berkeley Software Design Inc. [cph] (libuv subcomponent: android-ifaddrs.h, android-ifaddrs.c), Kenneth MacKay [cph] (libuv subcomponent: android-ifaddrs.h, android-ifaddrs.c), Emergya (Cloud4all, FP7/2007-2013, grant agreement no 289016) [cph] (libuv subcomponent: android-ifaddrs.h, android-ifaddrs.c), Steve Reid [aut] (SHA-1 implementation), James Brown [aut] (SHA-1 implementation), Bob Trower [aut] (base64 implementation), Alexander Peslyak [aut] (MD5 implementation), Trantor Standard Systems [cph] (base64 implementation), Igor Sysoev [cph] (http-parser)",
       "Maintainer": "Winston Chang <winston@posit.co>",
-      "Repository": "RSPM"
+      "Repository": "CRAN"
     },
     "httr2": {
       "Package": "httr2",
@@ -1494,7 +1494,7 @@
       "LazyData": "true",
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2",
-      "Author": "Robert Davey [aut, cre] (<https://orcid.org/0000-0002-5589-7754>), Erin Becker [aut] (<https://orcid.org/0000-0002-6832-0233>), Zhian N. Kamvar [aut] (<https://orcid.org/0000-0003-1458-7108>), Toby Hodges [ctb], Erin Becker [ctb], Kelly Barnes [ctb]",
+      "Author": "Robert Davey [aut, cre] (ORCID: <https://orcid.org/0000-0002-5589-7754>), Erin Becker [aut] (ORCID: <https://orcid.org/0000-0002-6832-0233>), Zhian N. Kamvar [aut] (ORCID: <https://orcid.org/0000-0003-1458-7108>), Toby Hodges [ctb], Erin Becker [ctb], Kelly Barnes [ctb]",
       "Maintainer": "Robert Davey <robertdavey@carpentries.org>",
       "RemoteType": "github",
       "RemoteUsername": "carpentries",
@@ -2434,7 +2434,7 @@
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.2.9000",
       "VignetteBuilder": "knitr",
-      "Author": "Maëlle Salmon [aut] (<https://orcid.org/0000-0002-2815-0399>), Zhian N. Kamvar [aut, cre] (<https://orcid.org/0000-0003-1458-7108>), Jeroen Ooms [aut], Nick Wellnhofer [cph] (Nick Wellnhofer wrote the XSLT stylesheet.), rOpenSci [fnd] (https://ropensci.org/), Peter Daengeli [ctb]",
+      "Author": "Maëlle Salmon [aut] (ORCID: <https://orcid.org/0000-0002-2815-0399>), Zhian N. Kamvar [aut, cre] (ORCID: <https://orcid.org/0000-0003-1458-7108>), Jeroen Ooms [aut], Nick Wellnhofer [cph] (Nick Wellnhofer wrote the XSLT stylesheet.), rOpenSci [fnd] (https://ropensci.org/), Peter Daengeli [ctb]",
       "Maintainer": "Zhian N. Kamvar <zkamvar@gmail.com>",
       "RemoteType": "github",
       "RemoteUsername": "ropensci",
